@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu de Cartes Son /s/</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .game-container {
+            position: relative;
+            width: 90%;
+            height: 90%;
+            border: 2px solid #5da399;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #ffffff;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .card {
+            width: 120px;
+            height: 150px;
+            border: 1px solid #5da399;
+            border-radius: 8px;
+            margin: 10px;
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background-color: #fff5e1;
+        }
+        .card img {
+            width: 60px;
+            height: 60px;
+        }
+        .card p {
+            margin: 10px 0 0;
+            font-size: 18px;
+        }
+        .snake {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-image: url('https://www.svgrepo.com/show/276267/snake.svg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            cursor: grab;
+            z-index: 1000;
+        }
+        .card.correct {
+            border: 3px solid green;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ffcc00;
+            animation: fall 1s linear infinite;
+            border-radius: 50%;
+        }
+        @keyframes fall {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(400px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Cartes du jeu -->
+        <div class="card" data-word="sous" onclick="goToPage('sous')">
+            <img src="https://www.svgrepo.com/show/276267/arrow-down.svg" alt="Sous">
+            <p>Sous</p>
+        </div>
+        <div class="card" data-word="sale" onclick="goToPage('sale')">
+            <img src="https://www.svgrepo.com/show/16344/clean.svg" alt="Sale">
+            <p>Sale</p>
+        </div>
+        <div class="card" data-word="seau" onclick="goToPage('seau')">
+            <img src="https://www.svgrepo.com/show/23784/bucket.svg" alt="Seau">
+            <p>Seau</p>
+        </div>
+        <div class="card" data-word="scie" onclick="goToPage('scie')">
+            <img src="https://www.svgrepo.com/show/328879/saw.svg" alt="Scie">
+            <p>Scie</p>
+        </div>
+        <div class="card" data-word="sang" onclick="goToPage('sang')">
+            <img src="https://www.svgrepo.com/show/11547/blood.svg" alt="Sang">
+            <p>Sang</p>
+        </div>
+
+        <!-- Ajout du serpent -->
+        <div class="snake" id="snake"></div>
+    </div>
+
+    <script>
+        // Logique de navigation vers des pages distinctes
+        function goToPage(word) {
+            window.location.href = word + ".html";
+        }
+
+        // Logique de glisser-déposer du serpent
+        const snake = document.getElementById('snake');
+        let offsetX, offsetY;
+
+        // Début du glissement
+        snake.addEventListener('mousedown', function(e) {
+            offsetX = e.clientX - parseInt(window.getComputedStyle(snake).left);
+            offsetY = e.clientY - parseInt(window.getComputedStyle(snake).top);
+            snake.style.cursor = 'grabbing';
+            document.addEventListener('mousemove', moveSnake);
+        });
+
+        // Fin du glissement
+        document.addEventListener('mouseup', function() {
+            snake.style.cursor = 'grab';
+            document.removeEventListener('mousemove', moveSnake);
+            checkIfSnakeOverCard();
+        });
+
+        // Mouvement du serpent
+        function moveSnake(e) {
+            snake.style.left = (e.clientX - offsetX) + 'px';
+            snake.style.top = (e.clientY - offsetY) + 'px';
+        }
+
+        // Vérification de la position du serpent par rapport aux cartes
+        function checkIfSnakeOverCard() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                const cardRect = card.getBoundingClientRect();
+                const snakeRect = snake.getBoundingClientRect();
+
+                if (snakeRect.left >= cardRect.left &&
+                    snakeRect.top >= cardRect.top &&
+                    snakeRect.right <= cardRect.right &&
+                    snakeRect.bottom <= cardRect.bottom) {
+                    card.classList.add('correct');
+                    showConfetti();
+                } else {
+                    card.classList.remove('correct');
+                }
+            });
+        }
+
+        // Animation de confettis
+        function showConfetti() {
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = `${Math.random() * window.innerWidth}px`;
+                confetti.style.top = `${-Math.random() * 200}px`;
+                document.body.appendChild(confetti);
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>
